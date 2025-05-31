@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export TOOLBOX="$HOME/ToolBox";
+export GRAPHQL="$TOOLBOX/GraphQL";
+
 function ProjectDiscovery(){
 
     echo 'Installing subfinder';
@@ -54,6 +57,72 @@ function ProjectDiscovery(){
     go install -v github.com/projectdiscovery/cdncheck/cmd/cdncheck@latest;
 }
 
+function GraphQL(){
+
+    mkdir $GRAPHQL && cd "$GRAPHQL";
+
+    echo "Clonning batchql";
+    git clone https://github.com/assetnote/batchql.git;
+
+    echo "Clonning graphql-cop";
+    git clone https://github.com/dolevf/graphql-cop.git;
+
+    echo "Clonning crackql";
+    git clone https://github.com/nicholasaleks/CrackQL.git;
+
+    echo "Clonning graphqlw00f";
+    git clone https://github.com/dolevf/graphw00f.git;
+
+    echo "Clonning graphql-path-enum";
+    git clone git@gitlab.com:dee-see/graphql-path-enum.git
+    wget 'https://gitlab.com/dee-see/graphql-path-enum/-/jobs/5152886994/artifacts/raw/target/release/graphql-path-enum' -O 'graphql-path-enum' && chmod +x 'graphql-path-enum'
+
+    echo 'Installing goctopus';
+    go install -v github.com/Escape-Technologies/goctopus/cmd/goctopus@latest;
+
+    cd ../;
+}
+
+function Android(){
+
+    mkdir Android && cd Android;
+
+    echo "Clonning Android Testing Tools";
+
+    git clone https://github.com/d78ui98/APKDeepLens.git;
+    git clone https://github.com/iosiro/baserunner.git;
+    git clone https://github.com/shivsahni/FireBaseScanner.git;
+    git clone https://github.com/ReversecLabs/drozer.git && pipx install drozer;
+    wget "https://github.com/ReversecLabs/drozer-agent/releases/download/3.1.0/drozer-agent.apk";
+    pip3 install frida-tools --break-system-packages;
+    pip3 install objection --break-system-packages;
+
+    echo "Do you want to clone MoBSF or install docker image ? [c/d]:"
+    read inp;
+
+    if [ "$inp" == "c" ];
+    then;
+        git clone https://github.com/MobSF/Mobile-Security-Framework-MobSF.git;
+
+    elif [ "$inp" == "d" ];
+    then;
+
+        if ! [ -x "$(which docker)" ];
+        then;
+            sudo apt install docker.io -y;
+        fi;
+
+        sudo docker pull opensecurity/mobile-security-framework-mobsf:latest;
+        echo '#!/bin/bash' > mobsf && echo 'sudo docker run -it --rm -p 8000:8000 opensecurity/mobile-security-framework-mobsf:latest' >> mobsf;
+        chmod +x mobsf && sudo mv mobsf /bin/;
+
+    else;
+        echo "You entered $inp. Skipping installing MoBSF...";
+    fi;
+
+    cd ../;
+}
+
 function bbh(){
 
     echo 'Installing amass';
@@ -90,7 +159,7 @@ function bbh(){
     go install github.com/lc/gau/v2/cmd/gau@latest;
 
     echo 'Installing gf';
-    go install github.com/tomnomnom/gf;
+    go install github.com/tomnomnom/gf@latest;
 
     echo 'Installing getJS';
     go install github.com/003random/getJS/v2@latest;
@@ -117,7 +186,7 @@ function bbh(){
     go install github.com/hakluke/hakrevdns@latest;
 
     echo 'Installing filter-resolved';
-    go install github.com/tomnomnom/hacks/filter-resolved;
+    go install github.com/tomnomnom/hacks/filter-resolved@latest;
 
     echo 'Installing doser';
     go install github.com/Quitten/doser.go@latest;
@@ -208,10 +277,19 @@ function bbh(){
 
     echo 'Installing feroxbuster';
     sudo apt install feroxbuster;
+
+    echo "Installing sqlmc";
+    pip3 install sqlmc;
+
+    echo "Installing uro";
+    pipx install uro;
+
+    ProjectDiscovery;
 }
 
 function toolbox(){
-    mkdir ~/Toolbox && cd ~/Toolbox;
+
+    mkdir "$TOOLBOX" && cd "$TOOLBOX";
 
     mkdir Admin-login && cd Admin-login;
     echo "Clonning AdminHack";
@@ -219,7 +297,7 @@ function toolbox(){
     echo "Clonning Logsensor";
     git clone https://github.com/Mr-Robert0/Logsensor.git;
     echo "Clonning okadminfinder3";
-    git colne https://github.com/mIcHyAmRaNe/okadminfinder3.git;
+    git clone https://github.com/mIcHyAmRaNe/okadminfinder3.git;
     cd ../;
 
     echo "Clonning aem-hacker";
@@ -360,9 +438,6 @@ function toolbox(){
     echo "Clonning SSRFmap";
     git clone https://github.com/swisskyrepo/SSRFmap.git;
 
-    echo "Installing uro";
-    pipx install uro;
-
     echo "Clonning VhostScan";
     git clone https://github.com/codingo/VHostScan.git;
 
@@ -415,33 +490,12 @@ function toolbox(){
     git clone https://github.com/m0rtem/CloudFail.git;
     cd ../;
 
-    GraphQL();
-}
-
-function GraphQL(){
-
-    mkdir GraphQL && cd GraphQL/;
-
-    echo "Clonning batchql";
-    git clone https://github.com/assetnote/batchql.git;
-
-    echo "Clonning graphql-cop";
-    git clone https://github.com/dolevf/graphql-cop.git;
-
-    echo "Clonning crackql";
-    git clone https://github.com/nicholasaleks/CrackQL.git;
-
-    echo "Clonning graphqlw00f";
-    git clone https://github.com/dolevf/graphw00f.git;
-
-    echo "Clonning graphql-path-enum";
-    git clone git@gitlab.com:dee-see/graphql-path-enum.git
-
-    echo 'Installing goctopus';
-    go install -v github.com/Escape-Technologies/goctopus/cmd/goctopus@latest;
-
-    cd ../;
+    Android;
+    GraphQL;
 }
 
 sudo apt update;
-sudo apt install exploitdb python3 python3-pip golang-go unzip git curl wget xclip ffuf wordlists tmux metasploit-framework npm pipx;
+sudo apt install exploitdb python3 python3-pip golang-go unzip git curl wget xclip ffuf wordlists tmux metasploit-framework npm pipx -y;
+sudo chmod +xwr /opt -R;
+toolbox;
+bbh;
